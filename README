@@ -1,0 +1,212 @@
+
+   luaglut version 0.5
+
+   Introduction
+   ============
+
+   luaglut is a set of libraries providing OpenGL and GLUT bindings for
+   Lua 5. The bindings are in separate libraries, so you don't have to
+   load the GLUT bindings if you only need OpenGL. The GLUT bindings
+   also include some GLU functions. These will be eventually moved to
+   a separate library. luaglut is currently used actively on Lua 5.0.2
+   but it also works with Lua 5.1 release candidates. The currently
+   supported operating systems are Linux, Mac OS X and Microsoft Windows
+   2000/XP (Mingw required for compilation on Windows).
+
+   The design of the libraries is a little bit different from the
+   alternatives:
+
+      gllua (http://www.tecgraf.puc-rio.br/~celes/gllua/) only supports
+      Lua 3.1 and is not developed any more.
+
+      Doris (http://doris.sourceforge.net/) suppots Lua 5.0 but rather
+      than being a standalone library, it includes Lua 5.0 inside it. It
+      also provides binding to the GLUI user interface toolkit.
+
+      LuaGL (http://luagl.sourceforge.net/) is another binding for Lua
+      5.0 which also has a limited coverage of OpenGL and GLUT and comes
+      with its own interpreter.
+
+   luaglut, on the other hand, is a set of standalone libraries which
+   can be loaded by a stock Lua distribution and have a much more
+   complete coverage of the OpenGL and GLUT APIs. I also try to stick
+   semantically to the OpenGL and GLUT API as closely as possible.
+
+   Also, rather than providing custom solutions for creation of memory
+   buffers (needed for texture mapping and framebuffer operations)
+   luaglut accepts lightuserdata when a pointer to a raw memory area
+   is required. It is up to the programmer (i.e. You) to decide which
+   mechanism for raw memory access you want to use. The current luaglut
+   distribution includes a simple example of such a library (memarray)
+   and one of the demo programs uses it to load and display a texture
+   from a ppm file.
+
+   NOTE: memarray was inspired from the LuaMem library written by
+         Nodir Temirhodzhaev. While a remarkable piece of work, LuaMem
+         requires some changes to Lua internals which seem to be unsafe
+         (details on the lua-l list)
+
+   Building Instructions
+   =====================
+
+   luaglut supports both Lua 5.0.2 and Lua 5.1. When being built,
+   luaglut will use include files from the respective Lua version. For
+   this reason you cannot use the same library with both Lua versions -
+   it will only run with the Lua version with which it was compiled. If
+   you need both, you will need to compile two different libraries and
+   use the respective one with each Lua version.
+
+   On the supported platforms, luaglut is built with the 'make'
+   command. Before giving instructions about building on a particular
+   platform, let me mention that there are a number of variables that
+   you can specify on the make command line in order to customize your
+   build. (DEFS, LIBS, CFLAGS, LFLAGS, GCC_OPT_SHARED, USE_FREEGLUT,
+   USE_OPENGLUT, USE_OPENGLEAN). I will give some examples below which
+   will clarify their use.
+
+   First of all, it is assumed that Lua headers are installed in
+   a standard place (like /usr/include). If not, you will need to
+   specify their location explicitly. Suppose that the headers are in
+   ../lua-5.1/include, then you should issue the following command:
+
+      make DEFS=-I../lua-5.1/include
+
+   You can also optimize your build by providing extra flags as in
+
+      make CFLAGS="-O2 -march=pentium4"
+
+   if your cpu is a pentium4 and you want to the C compiler to optimize
+   at level O2, for example.
+
+   luaglut no longer explicitly links to the lua core libraries. Please
+   read http://lua-users.org/wiki/BuildingModules for more information.
+
+   1. Building on Linux
+   --------------------
+
+   Just unpack and run 'make'. This should generate luagl.so, luaglut.so
+   and memarray.so.
+
+   2. Building on Mac OS X
+   -----------------------
+
+   If you have Mac OS X version 10.3.x or greater, you will need to
+   issue the following command before compiling:
+
+      export MACOSX_DEPLOYMENT_TARGET=10.3
+
+   If you have Mac OS X version 10.2.x or less, you will need to
+   link explicitly to the Lua libraries. If your libraries are in
+   /usr/local/lib, for example, the following line might work:
+
+      make \
+         GCC_OPT_SHARED=-bundle \
+         LIBS="-L/usr/local/lib -llua -llualib"
+
+   The make process should generate luagl.bundle, luaglut.bundle and
+   memarray.bundle. Many thanks to Anders F. Björklund for providing
+   patches for Mac OS X/9 support.
+
+   For versions earlier than Mac OS X 10.3, you will need 'dlcompat':
+      http://www.opendarwin.org/projects/dlcompat/
+
+   Lua 5.1 is well supported on Mac OS X. For Lua 5.0.2, you will need
+   to compile Lua with support for dynamic loading. Here are some
+   instructions that worked for me:
+
+      * Get lua-5.0.2.tar.gz and unpack it
+      * Apply the following patch:
+         http://www.algonet.se/~afb/lua/lua-5.0.2-darwin.patch
+      * Don't forget to uncomment the lines for dynamic loading in config
+      * Issuing the following commands works for me:
+         make
+         make dylib
+         make dylibbin
+         make install
+         make dylibinstall
+
+   3. Building on Mac OS 9 / X (Carbon) / CodeWarrior
+   --------------------------------------------------
+
+   You can download Lua for Mac OS 9/X (Carbon) from:
+   http://www.algonet.se/~afb/lua/ You will need to convert all the line
+   endings to Macintosh format and set the type/creator codes so that
+   the OS can read the files.
+
+   4. Building on Windows
+   ----------------------
+
+   You need Mingw for compilation (www.mingw.org). You will have to
+   explicitly define the lua dll files when linking. For example, if Lua
+   5.0.2 is installed in /usr/local/ then you can issue the following
+   command:
+
+      make \
+        DEFS=-I/usr/local/include \
+        LIBS="/usr/local/bin/lua.dll /usr/local/bin/lualib.dll"
+
+   Another example where Lua 5.1 is installed in /usr/lua-5.1 will be:
+
+      make \
+         DEFS=-I/usr/lua-5.1/include \
+         LIBS=/usr/lua-5.1/bin/lua51.dll
+
+   This should generate luagl.dll, luaglut.dll and memarray.dll.
+
+   Using alternative GLUT implementations
+   ======================================
+
+   Besides using GLUT proper, luaglut can build with alternative
+   GLUT implementations (freeglut, openglut or openglean). Just add
+   USE_FREEGLUT=1 or USE_OPENGLUT=1 or USE_OPENGLEAN=1 to the make
+   command. Besides linking with the proper library, luaglut will also
+   activate the extra API functions that may come with the respective
+   implementations.
+
+   Running Instructions
+   =====================
+
+   Example programs can be run on any platform by issuing the following
+   commands: "lua glut_demo1.lua" and/or "lua glut_demo2.lua"
+
+   Hopefully I'll write some documentation when I have time. Meanwhile,
+   you can look at the sources and the two examples that are provided.
+
+   List of files
+   =============
+
+   Main Sources:
+   -------------
+      README         - this file
+      LICENCE        - the licence
+      Makefile       - the makefile
+      luagl.c        - the C source for the OpenGL bindings
+      luaglut.c      - the C source for the GLUT (and some GLU) bindings
+      memarray.c     - the C source for the memarray library
+      macros.h       - macros used in the compilation of above C sources
+      macros.lua     - this lua file can be used to generates macros.h
+      menus.h        - menus.lua in an embeded form (included in luaglut.c)
+      menus.lua      - menu support code for GLUT
+
+   Helpers for library loading: (not necessary with Lua 5.1)
+   ---------------------------------------------------------
+      luagl.lua      - helper file for loading the dynamic library
+      luaglut.lua    - helper file for loading the dynamic library
+      memarray.lua   - helper file for loading the dynamic library
+
+   Examples:
+   ---------
+      glut_test1.lua - simple example
+      glut_test2.lua - same as above, but with texture mapping
+      lua.ppm        - texture loaded by glut_test2.lua
+
+   CodeWarrior / Carbon support files:
+   -----------------------------------
+      luagl.exp            - library export information
+      luaglut.exp          - library export information
+      memarray.exp         - library export information
+      luaglut.prefix.h     - Carbon support
+      Carbon.r             - Needed to launch in OS X
+      luaglut.mcp.xml.gz   - project file for importing in the CodeWarrior IDE
+
+   Varol Kaptan <varol.kaptan@gmail.com>

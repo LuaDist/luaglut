@@ -1,0 +1,15 @@
+--- This file is part of LuaDist project
+
+name = "luaglut"
+version = "0.5"
+
+desc = "GLUT and OpenGL bindings for Lua"
+author = "Varol Kaptan"
+license = "MIT license"
+url = "http://lua-users.org/files/wiki_insecure/users/VarolKaptan/"
+maintainer = "Peter Kapec"
+
+depends = {
+	"lua ~> 5.1",
+	"glut >=3.7.6"
+}
