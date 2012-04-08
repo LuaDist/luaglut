@@ -1,54 +1,45 @@
-# Copyright (C) 2007-2009 LuaDist.
+# Copyright (C) 2007-2012 LuaDist.
 # Created by Peter Kapec
 # Redistribution and use of this file is allowed according to the terms of the MIT license.
 # For details see the COPYRIGHT file distributed with LuaDist.
 # Please note that the package source code is licensed under its own license.
 
-PROJECT(luaglut C)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-INCLUDE(dist.cmake)
+project ( luaglut C )
+cmake_minimum_required ( VERSION 2.6 )
+include ( dist.cmake )
 
 # We need OpenGL
-FIND_PACKAGE (OpenGL REQUIRED)
-INCLUDE_DIRECTORIES (${OPENGL_INCLUDE_DIR})
+find_package ( OpenGL REQUIRED )
+include_directories ( ${OPENGL_INCLUDE_DIR} )
 
 # Find OpenGLUT, FreeGLUT, GLUT
-INCLUDE(FindOpenGLUT.cmake)
-INCLUDE(FindFreeGLUT.cmake)
-FIND_PACKAGE(GLUT REQUIRED)
+include ( FindOpenGLUT.cmake )
+include ( FindFreeGLUT.cmake )
+find_package ( GLUT REQUIRED )
 
 # Create luagl module
-ADD_LUA_MODULE(luagl luagl.c)
-TARGET_LINK_LIBRARIES(luagl ${OPENGL_LIBRARIES})
+install_lua_module ( luagl luagl.c LINK ${OPENGL_LIBRARIES} )
 
 # Create memarray module
-ADD_DEFINITIONS(-DMEMARRAY_USE_OPENGL)
-ADD_LUA_MODULE(memarray memarray.c)
+add_definitions ( -DMEMARRAY_USE_OPENGL )
+install_lua_module ( memarray memarray.c )
 
 # Try OpenGLUT, then FreeGLUT and finaly GLUT
-IF(OPENGLUT_FOUND)
-	INCLUDE_DIRECTORIES (${OPENGLUT_INCLUDE_DIRS})
-	ADD_DEFINITIONS(-DUSE_OPENGLUT)
-	SET(GLUT_LIB ${OPENGLUT_LIBRARIES})
+if ( OPENGLUT_FOUND )
+	include_directories ( ${OPENGLUT_INCLUDE_DIRS} )
+	add_definitions ( -DUSE_OPENGLUT )
+	set ( GLUT_LIB ${OPENGLUT_LIBRARIES} )
+elseif ( FREEGLUT_FOUND )
+	include_directories ( ${FREEGLUT_INCLUDE_DIR} )
+	add_definitions ( -DUSE_FREEGLUT )
+	set ( GLUT_LIB ${FREEGLUT_LIBRARIES} )
+elseif ( GLUT_FOUND )
+	include_directories (${GLUT_INCLUDE_DIR} )
+	set ( GLUT_LIB ${GLUT_LIBRARY} )
+endif ()
 
-ELSEIF(FREEGLUT_FOUND)
-	INCLUDE_DIRECTORIES (${FREEGLUT_INCLUDE_DIR})
-	ADD_DEFINITIONS(-DUSE_FREEGLUT)
-	SET(GLUT_LIB ${FREEGLUT_LIBRARIES})
+install_lua_module ( luaglut luaglut.c LINK ${GLUT_LIB} ${OPENGL_LIBRARIES} )
 
-ELSEIF(GLUT_FOUND)
-	INCLUDE_DIRECTORIES (${GLUT_INCLUDE_DIR})
-	SET(GLUT_LIB ${GLUT_LIBRARY})
-ENDIF ()
+install_data ( LICENSE README )
 
-ADD_LUA_MODULE(luaglut luaglut.c)
-TARGET_LINK_LIBRARIES(luaglut ${GLUT_LIB} ${OPENGL_LIBRARIES})
-
-# Install
-INSTALL(TARGETS memarray luaglut luagl DESTINATION ${INSTALL_CMOD})
-
-# LuaGLUT Documentation
-INSTALL(FILES LICENSE README DESTINATION ${INSTALL_DATA})
-
-# LuaGLUT Tests
-INSTALL(FILES glut_test1.lua glut_test2.lua lua.ppm DESTINATION ${INSTALL_TEST})
+install_example ( glut_test1.lua glut_test2.lua lua.ppm )
