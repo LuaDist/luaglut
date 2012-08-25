@@ -7,6 +7,7 @@
 project ( luaglut C )
 cmake_minimum_required ( VERSION 2.8 )
 include ( cmake/dist.cmake )
+include ( lua )
 
 # We need OpenGL
 find_package ( OpenGL REQUIRED )
