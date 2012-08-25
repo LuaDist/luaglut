@@ -11,5 +11,5 @@ maintainer = "Peter Kapec"
 
 depends = {
 	"lua ~> 5.1",
-	"glut >=3.7.6"
+	"freeglut >=2.6.0"
 }
