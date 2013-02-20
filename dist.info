@@ -1,0 +1,34 @@
+type = "x86"
+arch = "Windows"
+author = "Varol Kaptan"
+depends = {
+[[lua ~> 5.1]],
+[[freeglut >=2.6.0]],
+}
+
+desc = "GLUT and OpenGL bindings for Lua"
+version = "0.5"
+maintainer = "Peter Kapec"
+files = {
+Runtime = {
+[[lib\lua\luagl.dll]],
+[[lib\lua\memarray.dll]],
+[[lib\lua\luaglut.dll]],
+}
+,
+Example = {
+[[share\luaglut\example\glut_test1.lua]],
+[[share\luaglut\example\glut_test2.lua]],
+[[share\luaglut\example\lua.ppm]],
+}
+,
+Data = {
+[[share\luaglut\LICENSE]],
+[[share\luaglut\README]],
+}
+,
+}
+
+license = "MIT license"
+name = "luaglut"
+url = "http://lua-users.org/files/wiki_insecure/users/VarolKaptan/"
